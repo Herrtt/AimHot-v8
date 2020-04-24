@@ -262,7 +262,7 @@ do
         return false
     end
 
-    local shit = true
+    local shit = false
     function utility.isvisible(char, root, max, ...)
         local pos = root.Position
         if shit or max > 4 then
