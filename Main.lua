@@ -36,11 +36,7 @@ local Instance = Instance
 
 local drawing = Drawing or drawing
 
-local mousemoverel = mousemoverel
-
-local getrawmetatable = getrawmetatable -- May use later
-local setreadonly = setreadonly -- May use later
-local newcclosure = newcclosure -- May use later now shut up idiot
+local mousemoverel = mousemoverel or (Input and Input.MouseMove)
 
 local readfile = readfile
 local writefile = writefile
