@@ -46,7 +46,7 @@ local warn, print = DEBUG_MODE and warn or function() end, DEBUG_MODE and print 
 
 
 local required = {
-    mousemoverel, drawing, readfile, writefile, appendfile
+    mousemoverel, drawing, readfile, writefile, appendfile, game.HttpGet, game.GetObjects
 }
 
 for i,v in pairs(required) do
@@ -297,7 +297,7 @@ do
     function utility.getDistanceFromMouse(position)
         local screenpos, vis = worldToViewportPoint(camera, position)
         if vis and screenpos.Z > 0 then
-            return (v2new(mouse.X, mouse.Y) - v2new(screenpos.X, screenpos.Y)).Magnitude, screenpos.Z
+            return (v2new(mouse.X, mouse.Y) - v2new(screenpos.X, screenpos.Y)).Magnitude
         end
         return math.huge
     end
@@ -850,13 +850,13 @@ do
     local enabled = false
     bindEvent(uis.InputBegan, function(key,gpe)
         if aimbot.enabled == false then return end
+
         if aimbot.presstoenable then
             aimbot.fovshow = true
         else
             aimbot.fovshow = enabled == true
         end
-        
-        if gpe then return end
+
         local keyc = key.KeyCode == Enum.KeyCode.Unknown and key.UserInputType or key.KeyCode
         if keyc.Name == aimbot.keybind then
             if aimbot.presstoenable then
