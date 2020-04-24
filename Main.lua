@@ -38,9 +38,9 @@ local drawing = Drawing or drawing
 
 local mousemoverel = mousemoverel
 
-local getrawmetatable = getrawmetatable
-local setreadonly = setreadonly
-local newcclosure = newcclosure
+local getrawmetatable = getrawmetatable -- May use later
+local setreadonly = setreadonly -- May use later
+local newcclosure = newcclosure -- May use later now shut up idiot
 
 local readfile = readfile
 local writefile = writefile
@@ -50,7 +50,7 @@ local warn, print = DEBUG_MODE and warn or function() end, DEBUG_MODE and print 
 
 
 local required = {
-    mousemoverel, drawing, getrawmetatable, setreadonly, readfile, writefile, appendfile, newcclosure
+    mousemoverel, drawing, readfile, writefile, appendfile
 }
 
 for i,v in pairs(required) do
@@ -144,7 +144,7 @@ local serializer = {}
 
 local settings = {}
 
-local hud = loadstring(game:HttpGet("https://pastebin.com/raw/3hREvLEU", DEBUG_MODE == true and false or DEBUG_MODE == false and true))()
+local hud = loadstring(game:HttpGet("https://pastebin.com/raw/3hREvLEU", DEBUG_MODE == true and false or DEBUG_MODE == false and true))() -- Ugly ui do not care
 
 local aimbot = {}
 
@@ -843,11 +843,11 @@ do
                 end
             end
             rawset(self, index, value)
-        end;
+        end; -- ew
     })
 
 
-    local worldToScreenPoint = camera.WorldToScreenPoint
+    local worldToScreenPoint = camera.WorldToScreenPoint -- why did I start this
     local target, _, closestplr = nil, nil, nil;
     local completeStop = false
 
@@ -890,7 +890,7 @@ do
 
 
     local function calculateTrajectory()
-        -- my math is a bit rusty
+        -- my math is a bit rusty atm
     end
 
     local function aimAt(vector)
@@ -939,35 +939,33 @@ do
                         stop = true
                     end
                 end
-                
-
 
                 if stop then
-                    target, _, closestplr = utility.getClosestMouseTarget({ -- closest to mouse or camera mode later just wait
+                    -- getClosestTarget({mode = "mouse"}) later
+                    target, _, closestplr = utility.getClosestMouseTarget({
                         ignoreteam = aimbot.ignoreteam;
                         ignorewalls = aimbot.ignorewalls;
                         maxobscuringparts = aimbot.maxobscuringparts;
                         name = 'Head';
                         fov = aimbot.fovsize;
                         checkifalive = aimbot.checkifalive;
-                        -- mode = "mouse";
                     })
                 end
             end
         else
-            target = utility.getClosestMouseTarget({ -- closest to mouse or camera mode later just wait
+            target = utility.getClosestMouseTarget({
                 ignoreteam = aimbot.ignoreteam;
                 ignorewalls = aimbot.ignorewalls;
                 maxobscuringparts = aimbot.maxobscuringparts;
                 name = 'Head';
                 fov = aimbot.fovsize;
                 checkifalive = aimbot.checkifalive;
-                -- mode = "mouse";
             })
         end
 
         if target then
             aimAt(target:GetRenderCFrame().Position)
+            -- hot or not?
         end
     end
 
@@ -979,6 +977,7 @@ end
 
 
 -- Mostly visuals below here
+local clearDrawn, newdrawing
 do
     --/ Drawing extra functions
 
@@ -1017,7 +1016,7 @@ do
     crosshair_settings.color = Color3.fromRGB(255,0,0)
     crosshair_settings.transparency = settings:Get("crosshair.transparency", .1)
 
-    setmetatable(crosshair, {
+    setmetatable(crosshair, { -- yes I know it is easier ways to add this but that requires effort
         __index = function(self, index)
             if crosshair_settings[index] ~= nil then
                 local Value = crosshair_settings[index]
@@ -1087,7 +1086,8 @@ do
         crossVer = v
     end
 
-    local function updateCrosshair()
+    local function updateCrosshair() -- no reason at all to update this each frame
+        -- I will replace with ViewportSize.Changed later
         if completeStop then return end
 
         if crossHor == nil or crossVer == nil then
@@ -1533,7 +1533,7 @@ do
         return unpack(a)
     end
 
-    function boxes:Draw(player, character, root, humanoid, onscreen, isteam, dist)
+    function boxes:Draw(player, character, root, humanoid, onscreen, isteam, dist) -- No skid plox
         if completeStop then return end
         if character == nil then return boxes:Remove(player) end
         if root == nil then return boxes:Remove(player) end
@@ -1599,7 +1599,7 @@ do
             local btmleftfront = v2new(btmleftfront.X, btmleftfront.Y)
             local btmrightfront = v2new(btmrightfront.X, btmrightfront.Y)
 
-
+            -- pls don't copy this bad code
 			updateLine(tlb, topleftback, toprightback, topleftbackvisible)
             updateLine(trb, toprightback, btmrightback, toprightbackvisible)
             updateLine(blb, btmleftback, topleftback, btmleftbackvisible)
@@ -1649,18 +1649,6 @@ do
 
 
         -- I have never been more bored when doing 3d boxes.
-    end
-
-
-    function boxes:Hide(player) -- A bit slow may remove later
-        if completeStop then return end
-
-        local data = drawn[player]
-        if data ~= nil then
-            for i,v in pairs(data) do
-                if v.Visible then v.Visible = false end
-            end
-        end
     end
 
     function boxes:Remove(player)
@@ -1818,7 +1806,7 @@ do
                             local dist = myroot and (myroot.Position - root.Position).Magnitude
                             local isteam = (v.Team~=nil and v.Team==locpl.Team) and not v.Neutral or false
 
-                            if boxes.enabled then
+                            if boxes.enabled then -- Profilebegin is life
                                 profilebegin("boxes.draw")
                                 boxes:Draw(v, character, root, humanoid, onscreen, isteam, dist)
                                 profileend("boxes.draw")
@@ -1849,6 +1837,7 @@ do
                 end
             end
         else
+            -- mhm
             tracers:RemoveAll()
             boxes:RemoveAll()
             esp:RemoveAll()
@@ -1867,13 +1856,11 @@ do
     end
 
     spawn(function()
-        while ah8 and ah8.enabled do
+        while ah8 and ah8.enabled do -- I dont know why I am doing this
             for i,v in pairs(hashes) do
                 hashes[i] = nil
                 wait()
             end
-            hashes = {}
-            lastsize = nil
             wait(3)
         end
     end)
@@ -1939,7 +1926,7 @@ do
             local suc, err = pcall(v.func, run.dt)
             profileend(v.name)
             if not suc then
-                warn("AH8_ERROR : Failed to run " .. v.name .. "! " .. tostring(err))
+                warn("AH8_ERROR (RENDERSTEPPED) : Failed to run " .. v.name .. "! " .. tostring(err))
                 engine[i] = nil
             end
         end
@@ -1957,7 +1944,7 @@ do
             local suc, err = pcall(v.func, delta)
             profileend(v.name)
             if not suc then
-                warn("Failed to run " .. v.name .. "! " .. tostring(err))
+                warn("AH8_ERROR (HEARTBEAT) : Failed to run " .. v.name .. "! " .. tostring(err))
             end
         end
 
@@ -1975,7 +1962,7 @@ do
             local suc, err = pcall(v.func, delta)
             profileend(v.name)
             if not suc then
-                warn("Failed to run " .. v.name .. "! " .. tostring(err))
+                warn("AH8_ERROR (STEPPED) : Failed to run " .. v.name .. "! " .. tostring(err))
             end
         end
 
@@ -1992,14 +1979,13 @@ do
         spawn(function() pcall(visuals.End, visuals) end)
         spawn(function() pcall(aimbot.End, aimbot) end)
         spawn(function() pcall(hud.End, hud) end)
-
         spawn(function()
             for i,v in pairs(connections) do
                 pcall(function() v:Disconnect() end)
             end
         end)
         ah8 = nil
-        shared.ah8 = nil
+        shared.ah8 = nil -- k
 
         settings:Save()
     end
@@ -2017,10 +2003,10 @@ do
 end
 
 
+-- I didn't think this ui lib through
 local Aiming = hud:AddTab({
 	Text = "Aiming",
 })
-
 
 local AimbotToggle = Aiming:AddToggleCategory({
 	Text = "Aimbot",
