@@ -1740,7 +1740,7 @@ do
             profilebegin("fov.step")
             if circle == nil then
                 circle = newdrawing("Circle", {
-                    Position = v2new(mouse.X, mouse.Y+35),
+                    Position = v2new(mouse.X, mouse.Y+36),
                     Radius = aimbot.fovsize,
                     Color = Color3.fromRGB(240,240,240),
                     Thickness = aimbot.fovthickness,
@@ -1751,7 +1751,7 @@ do
                 })
             else
                 if aimbot.fovshow then                    
-                    circle.Position = v2new(mouse.X, mouse.Y+35)
+                    circle.Position = v2new(mouse.X, mouse.Y+36)
                     circle.Radius = aimbot.fovsize
                     circle.NumSides = aimbot.fovsides
                     circle.Thickness = aimbot.fovthickness
@@ -1775,7 +1775,7 @@ do
         if visuals.enabled and (esp.enabled or boxes.enabled or tracers.enabled) then
             profilebegin("tracers.origin")
             if tracers.fromMouse then 
-                tracers.origin = v2new(mouse.X, mouse.Y+35) -- thanks roblox
+                tracers.origin = v2new(mouse.X, mouse.Y+36) -- thanks roblox
             else
                 tracers.origin = v2new(viewportsize.X/2, viewportsize.Y)
             end
