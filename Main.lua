@@ -1171,7 +1171,7 @@ do
     tracers_settings.showteam = settings:Get("tracers.showteam", false)
 
     tracers_settings.drawdistance = settings:Get("tracers.drawdistance", 4000)
-    tracers_settings.showvisible = settings:Get("tracers.showvisible", false)
+    tracers_settings.showvisible = settings:Get("tracers.showvisible", true)
 
     tracers_settings.enemycolor = Color3.fromRGB(255,7,58) -- 238,38,37, 255,0,13, 255,7,58
     tracers_settings.teamcolor = Color3.fromRGB(121,255,97) -- 121,255,97, 57,255,20
@@ -1335,7 +1335,7 @@ do
     esp_settings.drawdistance = settings:Get("esp.drawdistance", 1500)
 
 
-    esp_settings.showvisible = settings:Get("esp.showvisible", false)
+    esp_settings.showvisible = settings:Get("esp.showvisible", true)
 
     esp_settings.yoffset = settings:Get("esp.yoffset", 0)
 
@@ -1501,7 +1501,7 @@ do
 
     boxes_settings.thirddimension = settings:Get("boxes.thirddimension", false)
 
-    boxes_settings.showvisible = settings:Get("boxes.showvisible", false)
+    boxes_settings.showvisible = settings:Get("boxes.showvisible", true)
 
     boxes_settings.dist3d = settings:Get("boxes.dist3d", 1000)
     boxes_settings.drawdistance = settings:Get("boxes.drawdistance", 4000)
