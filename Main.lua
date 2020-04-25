@@ -728,13 +728,11 @@ do
         if value == nil and default ~= nil then
             value = default
             settings.saved[name] = value
-            settings:Set(name, value)
         end
         self.Value = value
         function self:Set(val)
             self.Value = val
             settings.saved[name] = val
-            settings:Set(name, val)
         end
         return self  --value or default
     end
@@ -784,6 +782,12 @@ do
         return data
     end
     settings:Load()
+
+    spawn(function()
+        while wait(5) do
+            settings:Save()
+        end
+    end)
 end
 
 -- Aiming aim bot aim aim stuff bot
