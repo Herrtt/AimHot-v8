@@ -10,7 +10,7 @@
 
 -- Extremly bad code starts below here
 
-local DEBUG_MODE = false -- warnings, prints and profiles dont change idiot thanks
+local DEBUG_MODE = true -- warnings, prints and profiles dont change idiot thanks
 
 -- Ok I declare some variables here for micro optimization. I might declare again in the blocks because I am lazy to check here
 local game, workspace = game, workspace
@@ -140,7 +140,7 @@ local serializer = {}
 
 local settings = {}
 
-local hud = loadstring(game:HttpGet("https://pastebin.com/raw/3hREvLEU", DEBUG_MODE == true and false or DEBUG_MODE == false and true))() -- Ugly ui do not care
+local hud = loadstring(game:HttpGet("https://pastebin.com/raw/3hREvLEU", DEBUG_MODE == false and true or DEBUG_MODE == true and false))() -- Ugly ui do not care
 
 local aimbot = {}
 
@@ -154,6 +154,8 @@ local tracers = {}
 local run = {}
 local ah8 = {enabled = true;}
 
+
+local visiblekids = {} -- no need to check twice each frame yes? todo :(
 -- Some libraries
 
 do
@@ -394,11 +396,12 @@ do
     end
 
     spawn(function()
-        while wait(4) do
+        while ah8 and ah8.enabled do
             for i,v in pairs(hashes) do
                 hashes[i] = nil
                 wait()
             end
+            wait(4)
             --hashes = {}
         end
     end)
@@ -784,8 +787,9 @@ do
     settings:Load()
 
     spawn(function()
-        while wait(5) do
+        while ah8 and ah8.enabled do
             settings:Save()
+            wait(5)
         end
     end)
 end
@@ -1167,9 +1171,11 @@ do
     tracers_settings.showteam = settings:Get("tracers.showteam", false)
 
     tracers_settings.drawdistance = settings:Get("tracers.drawdistance", 4000)
+    tracers_settings.showvisible = settings:Get("tracers.showvisible", false)
 
-    tracers_settings.enemycolor = Color3.fromRGB(255,0,0)
-    tracers_settings.teamcolor = Color3.fromRGB(0,255,0)
+    tracers_settings.enemycolor = Color3.fromRGB(255,7,58) -- 238,38,37, 255,0,13, 255,7,58
+    tracers_settings.teamcolor = Color3.fromRGB(121,255,97) -- 121,255,97, 57,255,20
+    tracers_settings.visiblecolor = Color3.fromRGB(0, 141, 255)
 
     setmetatable(tracers, {
         __index = function(self, index)
@@ -1252,7 +1258,19 @@ do
             if onscreen then
                 line.From = tracers.origin
                 line.To = v2new(screenpos.X, screenpos.Y)
-                line.Color = isteam and tracers.teamcolor or tracers.enemycolor
+        
+                local color
+                if isteam == false and tracers.showvisible then
+                    if utility.isvisible(character, root, 0) then
+                        color = tracers.visiblecolor
+                    else
+                        color = isteam and tracers.teamcolor or tracers.enemycolor
+                    end
+                else
+                    color = isteam and tracers.teamcolor or tracers.enemycolor
+                end
+
+                line.Color = color
             end
             line.Visible = onscreen
         end
@@ -1304,15 +1322,20 @@ do
     esp_settings.enabled = settings:Get("esp.enabled", false)
     esp_settings.showteam = settings:Get("esp.showteam", false)
     
-    esp_settings.teamcolor = Color3.fromRGB(0,255,0)
-    esp_settings.enemycolor = Color3.fromRGB(255,0,0)
-    
+    esp_settings.teamcolor = Color3.fromRGB(57,255,20) -- 121,255,97, 57,255,20
+    esp_settings.enemycolor = Color3.fromRGB(255,7,58) -- 238,38,37, 255,0,13, 255,7,58
+    esp_settings.visiblecolor = Color3.fromRGB(0, 141, 255)
+
+
     esp_settings.size = settings:Get("esp.size", 16)
     esp_settings.centertext = settings:Get("esp.centertext", true)
     esp_settings.outline = settings:Get("esp.outline", true)
     esp_settings.transparency = settings:Get("esp.transparency", 0.1)
 
     esp_settings.drawdistance = settings:Get("esp.drawdistance", 1500)
+
+
+    esp_settings.showvisible = settings:Get("esp.showvisible", false)
 
     esp_settings.yoffset = settings:Get("esp.yoffset", 0)
 
@@ -1403,7 +1426,20 @@ do
             oesp.Visible = isvis
             if isvis then
                 oesp.Position = v2new(where.X, where.Y)
-                oesp.Color = isteam and esp.teamcolor or esp.enemycolor
+
+                local color
+                if isteam == false and esp.showvisible then
+                    if utility.isvisible(character, root, 0) then
+                        color = esp.visiblecolor
+                    else
+                        color = isteam and esp.teamcolor or esp.enemycolor
+                    end
+                else
+                    color = isteam and esp.teamcolor or esp.enemycolor
+                end
+
+                oesp.Color = color
+
                 oesp.Center = esp.centertext
                 oesp.Size = esp.size
                 oesp.Outline = esp.outline
@@ -1457,13 +1493,15 @@ do
     boxes_settings.enabled = settings:Get("boxes.enabled", false)
     boxes_settings.transparency = settings:Get("boxes.transparency", .2)
     boxes_settings.thickness = settings:Get("boxes.thickness", 1.5)
-
     boxes_settings.showteam = settings:Get("boxes.showteam", false)
-    boxes_settings.teamcolor = Color3.fromRGB(0,255,0)
-    boxes_settings.enemycolor = Color3.fromRGB(255,0,0)
+
+    boxes_settings.teamcolor = Color3.fromRGB(57,255,20) -- 121,255,97,  57,255,20
+    boxes_settings.enemycolor = Color3.fromRGB(255,7,58) -- 238,38,37, 255,0,13, 255,7,58
+    boxes_settings.visiblecolor = Color3.fromRGB(0, 141, 255)
 
     boxes_settings.thirddimension = settings:Get("boxes.thirddimension", false)
 
+    boxes_settings.showvisible = settings:Get("boxes.showvisible", false)
 
     boxes_settings.dist3d = settings:Get("boxes.dist3d", 1000)
     boxes_settings.drawdistance = settings:Get("boxes.drawdistance", 4000)
@@ -1549,13 +1587,17 @@ do
             end
         end
 
-        --[[if boxes.onlyvisible 
-            if not utility.isvisible(character, root, 0) then
-                return boxes:Remove(player)
+        local color
+        if isteam == false and boxes.showvisible then
+            if utility.isvisible(character, root, 0) then
+                color = boxes.visiblecolor
+            else
+                color = isteam and boxes.teamcolor or boxes.enemycolor
             end
-        end--]]
+        else
+            color = isteam and boxes.teamcolor or boxes.enemycolor
+        end
 
-        local color = isteam and boxes.teamcolor or boxes.enemycolor
         local function updateLine(line, from, to, vis)
             if line == nil then return end
 
@@ -2132,6 +2174,13 @@ local Boxes = Visuals:AddToggleCategory({
 end)
 
 Boxes:AddToggle({
+    Text = "Visible check",
+    State = boxes.showvisible,
+}, function(new)
+    boxes.showvisible = new
+end)
+
+Boxes:AddToggle({
     Text = "Show Team",
     State = boxes.showteam,
 }, function(new)
@@ -2165,6 +2214,13 @@ local Esp = Visuals:AddToggleCategory({
     State = esp.enabled,
 }, function(new)
     esp.enabled = new
+end)
+
+Esp:AddToggle({
+    Text = "Visible check",
+    State = esp.showvisible,
+}, function(new)
+    esp.showvisible = new
 end)
 
 Esp:AddSlider({
@@ -2224,6 +2280,13 @@ local Tracers = Visuals:AddToggleCategory({
     State = tracers.enabled,
 }, function(new)
     tracers.enabled = new
+end)
+
+Tracers:AddToggle({
+    Text = "Visible check",
+    State = tracers.showvisible,
+}, function(new)
+    tracers.showvisible = new
 end)
 
 Tracers:AddToggle({
