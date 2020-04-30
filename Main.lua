@@ -126,6 +126,7 @@ bindEvent(locpl.CharacterRemoving, function()
     myroot = nil
 end)
 
+
 -- Just to check another aimhot instance is running and close it
 local uid = tick() .. math.random(1,100000) .. math.random(1,100000)
 if shared.ah8 and shared.ah8.close and shared.ah8.uid~=uid then shared.ah8:close() end
@@ -242,7 +243,7 @@ do
 
     function utility.isalive(_1, _2)
         if _1 == nil then return end
-        local Char, RoootPart
+        local Char, RootPart
         if _2 ~= nil then
             Char, RootPart = _1,_2
         else
@@ -317,10 +318,11 @@ do
                     local hash = hashes[v]
                     local part = hash or findFirstChild(character, settings.name or "HumanoidRootPart") or findFirstChild(character, "HumanoidRootPart") or character.PrimaryPart
                     if hash == nil then hashes[v] = part end
-                    if part then
+                    if part and isDescendantOf(part, game) == true then
                         local legal = true
 
-                        local distance = utility.getDistanceFromMouse(part:GetRenderCFrame().p)
+                        local rp = part:GetRenderCFrame().p
+                        local distance = utility.getDistanceFromMouse(rp)
                         if temp <= distance then
                             legal = false
                         end
@@ -345,6 +347,7 @@ do
                         end
 
                         if legal then
+                            local dist1
                             temp = distance
                             closest = part
                             plr = v
@@ -1843,7 +1846,7 @@ do
                     if character and isDescendantOf(character, game) == true then
                         local root = hashes[v] or findFirstChild(character, "HumanoidRootPart") or character.PrimaryPart
                         local humanoid = findFirstChildOfClass(character, "Humanoid")
-                        if root then
+                        if root and isDescendantOf(character, game) == true then
                             local screenpos, onscreen = worldToViewportPoint(camera, root.Position)
                             local dist = myroot and (myroot.Position - root.Position).Magnitude
                             local isteam = (v.Team~=nil and v.Team==locpl.Team) and not v.Neutral or false
@@ -2197,7 +2200,7 @@ end)
 Boxes:AddSlider({
     Text = "Draw Distance",
     Current = boxes.drawdistance,
-}, {5,10000,5}, function(new)
+}, {100,100000,100}, function(new)
     boxes.drawdistance = new
 end)
 
@@ -2240,7 +2243,7 @@ end)
 Esp:AddSlider({
     Text = "Draw Distance",
     Current = esp.drawdistance
-}, {5,10000,5}, function(new)
+}, {100,100000,100}, function(new)
     esp.drawdistance = new
 end)
 
@@ -2307,7 +2310,7 @@ end)
 Tracers:AddSlider({
     Text = "Draw Distance",
     Current = tracers.drawdistance,
-}, {5,10000,5}, function(new)
+}, {100,100000,100}, function(new)
     tracers.drawdistance = new
 end)
 
