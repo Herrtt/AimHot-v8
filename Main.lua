@@ -10,7 +10,7 @@
 
 -- Extremly bad code starts below here
 
-local DEBUG_MODE = false -- warnings, prints and profiles dont change idiot thanks
+local DEBUG_MODE = true -- warnings, prints and profiles dont change idiot thanks
 
 -- Ok I declare some variables here for micro optimization. I might declare again in the blocks because I am lazy to check here
 local game, workspace = game, workspace
