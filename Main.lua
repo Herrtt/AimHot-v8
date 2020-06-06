@@ -114,19 +114,6 @@ local findFirstChild = game.FindFirstChild
 local findFirstChildOfClass = game.FindFirstChildOfClass
 local isDescendantOf = game.IsDescendantOf
 
-local mycharacter = locpl.Character
-local myroot = mycharacter and findFirstChild(mycharacter, "HumanoidRootPart") or mycharacter and mycharacter.PrimaryPart
-bindEvent(locpl.CharacterAdded, function(char)
-    mycharacter = char
-    wait(.1)
-    myroot = mycharacter and findFirstChild(mycharacter, "HumanoidRootPart") or mycharacter.PrimaryPart
-end)
-bindEvent(locpl.CharacterRemoving, function()
-    mycharacter = nil
-    myroot = nil
-end)
-
-
 -- Just to check another aimhot instance is running and close it
 local uid = tick() .. math.random(1,100000) .. math.random(1,100000)
 if shared.ah8 and shared.ah8.close and shared.ah8.uid~=uid then shared.ah8:close() end
@@ -215,6 +202,7 @@ do
     local raynew = Ray.new
     local findPartOnRayWithIgnoreList = workspace.FindPartOnRayWithIgnoreList
     local findPartOnRay = workspace.FindPartOnRay
+    local findFirstChild = game.FindFirstChild
 
     local function raycast(ray, ignore, callback)
         local ignore = ignore or {}
@@ -240,6 +228,72 @@ do
         return hitparts
     end
 
+    local charshit = {}
+    function utility.getcharacter(player) -- Change this or something if you want to add support for other games.
+        if (player == nil) then return end
+        if (charshit[player]) then return charshit[player] end
+
+        local char = player.Character
+        if (char == nil or isDescendantOf(char, game) == false) then
+            char = findFirstChild(workspace, player.Name)
+        end
+
+        return char
+    end
+
+    utility.mychar = nil
+    utility.myroot = nil
+
+    local rootshit = {}
+    function utility.getroot(player)
+        if (player == nil) then return end
+        if (rootshit[player]) then return rootshit[player] end
+
+        local char
+        if (player:IsA("Player")) then
+            char = utility.getcharacter(player)
+        else
+            char = player
+        end
+
+        if (char ~= nil) then
+            local root = (findFirstChild(char, "HumanoidRootPart") or char.PrimaryPart)
+            if (root ~= nil) then -- idk
+                --bindEvent(root.AncestryChanged, function(_, parent)
+                --    if (parent == nil) then
+                --        roostshit[player] = nil
+                --    end
+                --end)
+            end
+
+            --rootshit[player] = root
+            return root
+        end
+
+        return
+    end
+
+    spawn(function()
+        while ah8 and ah8.enabled do -- Some games are gay
+            utility.mychar = utility.getcharacter(locpl)
+            if (utility.mychar ~= nil) then
+                utility.myroot = utility.getroot(locpl)
+            end
+            wait(.5)
+        end
+    end)
+    --[[local utility.mychar = locpl.Character
+    local utility.myroot = utility.mychar and findFirstChild(utility.mychar, "HumanoidRootPart") or utility.mychar and utility.mychar.PrimaryPart
+    bindEvent(locpl.CharacterAdded, function(char)
+        utility.mychar = char
+        wait(.1)
+        utility.myroot = utility.mychar and findFirstChild(utility.mychar, "HumanoidRootPart") or utility.mychar.PrimaryPart
+    end)
+    bindEvent(locpl.CharacterRemoving, function()
+        utility.mychar = nil
+        utility.myroot = nil
+    end)--]]
+    
 
     function utility.isalive(_1, _2)
         if _1 == nil then return end
@@ -247,7 +301,7 @@ do
         if _2 ~= nil then
             Char, RootPart = _1,_2
         else
-            Char = _1.Character
+            Char = utility.getcharacter(_1)
             RootPart = Char and (Char:FindFirstChild("HumanoidRootPart") or Char.PrimaryPart)
         end
 
@@ -269,7 +323,7 @@ do
     function utility.isvisible(char, root, max, ...)
         local pos = root.Position
         if shit or max > 4 then
-            local parts = badraycastnotevensure(pos, {mycharacter, ..., camera, char, root})
+            local parts = badraycastnotevensure(pos, {utility.mychar, ..., camera, char, root})
             
             return parts == 0
         else
@@ -277,7 +331,7 @@ do
             local dist = (camp - pos).Magnitude
 
             local hitt = 0
-            local hit = raycast(raynew(camp, (pos - camp).unit * dist), {mycharacter, ..., camera}, function(hit)
+            local hit = raycast(raynew(camp, (pos - camp).unit * dist), {utility.mychar, ..., camera}, function(hit)
 
                 if hit.CanCollide ~= false then-- hit.Transparency ~= 1 then¨
                     hitt = hitt + 1
@@ -313,7 +367,7 @@ do
 
         for i,v in pairs(getPlayers(players)) do
             if (locpl ~= v and (settings.ignoreteam==true and utility.sameteam(v)==false or settings.ignoreteam == false)) then
-                local character = v.Character-- or utility.getCharacter(v)
+                local character = utility.getcharacter(v)
                 if character and isDescendantOf(character, game) == true then
                     local hash = hashes[v]
                     local part = hash or findFirstChild(character, settings.name or "HumanoidRootPart") or findFirstChild(character, "HumanoidRootPart") or character.PrimaryPart
@@ -362,12 +416,12 @@ do
     function utility.getClosestTarget(settings)
 
         local closest, temp = nil, math.huge
-        --local myroot = mycharacter and (findFirstChild(mycharacter, settings.name or "HumanoidRootPart") or findFirstChild(mycharacter, "HumanoidRootPart"))
+        --local utility.myroot = utility.mychar and (findFirstChild(utility.mychar, settings.name or "HumanoidRootPart") or findFirstChild(utility.mychar, "HumanoidRootPart"))
         
-        if myroot then
+        if utility.myroot then
             for i,v in pairs(getPlayers(players)) do
                 if (locpl ~= v) and (settings.ignoreteam==true and utility.sameteam(v)==false or settings.ignoreteam == false) then
-                    local character = v.Character-- or utility.getCharacter(v)
+                    local character = utility.getcharacter(v)
                     if character then
                         local hash = hashes[v]
                         local part = hash or findFirstChild(character, settings.name or "HumanoidRootPart") or findFirstChild(character, "HumanoidRootPart")
@@ -383,7 +437,7 @@ do
                             end
 
                             if visible then
-                                local distance = (myroot.Position - part.Position).Magnitude
+                                local distance = (utility.myroot.Position - part.Position).Magnitude
                                 if temp > distance then
                                     temp = distance
                                     closest = part
@@ -907,7 +961,7 @@ do
     end
 
     function aimbot.step()
-        if completeStop or aimbot.enabled == false or enabled == false or mycharacter == nil or isDescendantOf(mycharacter, game) == false then 
+        if completeStop or aimbot.enabled == false or enabled == false or utility.mychar == nil or isDescendantOf(utility.mychar, game) == false then 
             if target or closestplr then
                 target, closestplr, _ = nil, nil, _
             end
@@ -915,7 +969,8 @@ do
         end
         
         if aimbot.locktotarget == true then
-            if target == nil or isDescendantOf(target, game) == false or closestplr == nil or closestplr.Parent == nil or closestplr.Character == nil or isDescendantOf(closestplr.Character, game) == false then
+            local cchar = utility.getcharacter(closestplr)
+            if target == nil or isDescendantOf(target, game) == false or closestplr == nil or closestplr.Parent == nil or cchar  == nil or isDescendantOf(cchar, game) == false then
                 target, _, closestplr = utility.getClosestMouseTarget({ -- closest to mouse or camera mode later just wait
                     ignoreteam = aimbot.ignoreteam;
                     ignorewalls = aimbot.ignorewalls;
@@ -1317,7 +1372,6 @@ do
     end
 end
 
-
 do
     --/ ESP
     local esp_settings = {}
@@ -1327,7 +1381,7 @@ do
     
     esp_settings.teamcolor = Color3.fromRGB(57,255,20) -- 121,255,97, 57,255,20
     esp_settings.enemycolor = Color3.fromRGB(255,7,58) -- 238,38,37, 255,0,13, 255,7,58
-    esp_settings.visiblecolor = Color3.fromRGB(0, 141, 255)
+    esp_settings.visiblecolor = Color3.fromRGB(0, 141, 255) -- 0, 141, 255
 
 
     esp_settings.size = settings:Get("esp.size", 16)
@@ -1574,6 +1628,17 @@ do
         return unpack(a)
     end
 
+    local function updateLine(line, from, to, vis, color)
+        if line == nil then return end
+
+        line.Visible = vis
+        if vis then
+            line.From = from
+            line.To = to
+            line.Color = color
+        end
+    end
+
     function boxes:Draw(player, character, root, humanoid, onscreen, isteam, dist) -- No skid plox
         if completeStop then return end
         if character == nil then return boxes:Remove(player) end
@@ -1599,17 +1664,6 @@ do
             end
         else
             color = isteam and boxes.teamcolor or boxes.enemycolor
-        end
-
-        local function updateLine(line, from, to, vis)
-            if line == nil then return end
-
-            line.Visible = vis
-            if vis then
-                line.From = from
-                line.To = to
-                line.Color = color
-            end
         end
 
         --size = ... lastsize--, v3new(5,8,0) --getBoundingBox(character)--]] root.CFrame, getExtentsSize(character)--]] -- Might change this later idk + idc
@@ -1645,24 +1699,24 @@ do
             local btmrightfront = v2new(btmrightfront.X, btmrightfront.Y)
 
             -- pls don't copy this bad code
-			updateLine(tlb, topleftback, toprightback, topleftbackvisible)
-            updateLine(trb, toprightback, btmrightback, toprightbackvisible)
-            updateLine(blb, btmleftback, topleftback, btmleftbackvisible)
-            updateLine(brb, btmleftback, btmrightback, btmrightbackvisible)
+			updateLine(tlb, topleftback, toprightback, topleftbackvisible, color)
+            updateLine(trb, toprightback, btmrightback, toprightbackvisible, color)
+            updateLine(blb, btmleftback, topleftback, btmleftbackvisible, color)
+            updateLine(brb, btmleftback, btmrightback, btmrightbackvisible, color)
 
             --
 
-            updateLine(brf, btmrightfront, btmleftfront, btmrightfrontvisible)
-            updateLine(tlf, topleftfront, toprightfront, topleftfrontvisible)
-            updateLine(trf, toprightfront, btmrightfront, toprightfrontvisible)
-            updateLine(blf, btmleftfront, topleftfront, btmleftfrontvisible)
+            updateLine(brf, btmrightfront, btmleftfront, btmrightfrontvisible, color)
+            updateLine(tlf, topleftfront, toprightfront, topleftfrontvisible, color)
+            updateLine(trf, toprightfront, btmrightfront, toprightfrontvisible, color)
+            updateLine(blf, btmleftfront, topleftfront, btmleftfrontvisible, color)
 
             --
 
-            updateLine(brf0, btmrightfront, btmrightback, btmrightfrontvisible)
-            updateLine(tlf0, topleftfront, topleftback, topleftfrontvisible)
-            updateLine(trf0, toprightfront, toprightback, toprightfrontvisible)
-            updateLine(blf0, btmleftfront, btmleftback, btmleftfrontvisible)
+            updateLine(brf0, btmrightfront, btmrightback, btmrightfrontvisible, color)
+            updateLine(tlf0, topleftfront, topleftback, topleftfrontvisible, color)
+            updateLine(trf0, toprightfront, toprightback, toprightfrontvisible, color)
+            updateLine(blf0, btmleftfront, btmleftback, btmleftfrontvisible, color)
             return
         else
 
@@ -1685,10 +1739,10 @@ do
             local btmleft = v2new(btmleft.X, btmleft.Y)
             local btmright = v2new(btmright.X, btmright.Y)
 
-            updateLine(tl, topleft, topright, topleftvisible)
-            updateLine(tr, topright, btmright, toprightvisible)
-            updateLine(bl, btmleft, topleft, btmleftvisible)
-            updateLine(br, btmleft, btmright, btmrightvisible)
+            updateLine(tl, topleft, topright, topleftvisible, color)
+            updateLine(tr, topright, btmright, toprightvisible, color)
+            updateLine(bl, btmleft, topleft, btmleftvisible, color)
+            updateLine(br, btmleft, btmright, btmrightvisible, color)
             return
         end
 
@@ -1842,13 +1896,13 @@ do
 
             for i,v in pairs(getPlayers(players)) do
                 if (v~=locpl) then
-                    local character = v.Character
+                    local character = utility.getcharacter(v)
                     if character and isDescendantOf(character, game) == true then
-                        local root = hashes[v] or findFirstChild(character, "HumanoidRootPart") or character.PrimaryPart
+                        local root = utility.getroot(character)
                         local humanoid = findFirstChildOfClass(character, "Humanoid")
                         if root and isDescendantOf(character, game) == true then
                             local screenpos, onscreen = worldToViewportPoint(camera, root.Position)
-                            local dist = myroot and (myroot.Position - root.Position).Magnitude
+                            local dist = utility.myroot and (utility.myroot.Position - root.Position).Magnitude
                             local isteam = (v.Team~=nil and v.Team==locpl.Team) and not v.Neutral or false
 
                             if boxes.enabled then -- Profilebegin is life
@@ -1929,6 +1983,10 @@ do
     local stepped = runservice.Stepped
     local wait = renderstep.wait
 
+    local function Warn(a, ...) -- ok frosty get to bed
+        warn(tostring(a):format(...))
+    end
+    
     run.dt = 0
     run.time = tick()
 
@@ -1968,12 +2026,14 @@ do
         for i,v in pairs(engine) do
 
             profilebegin(v.name)
-            local suc, err = pcall(v.func, run.dt)
-            profileend(v.name)
-            if not suc then
-                warn("AH8_ERROR (RENDERSTEPPED) : Failed to run " .. v.name .. "! " .. tostring(err))
+            xpcall(v.func, function(err)
+                if (DEBUG_MODE == true) then
+                    Warn("AH8_ERROR (RENDERSTEPPED) : Failed to run %s! %s | %s", v.name, tostring(err), debug.traceback())
+                end
                 engine[i] = nil
-            end
+            end, run.dt)
+            profileend(v.name)
+
         end
 
         profileend(rstname)
@@ -1986,11 +2046,14 @@ do
         for i,v in pairs(heartengine) do
 
             profilebegin(v.name)
-            local suc, err = pcall(v.func, delta)
+            xpcall(v.func, function(err)
+                if (DEBUG_MODE == true) then
+                    Warn("AH8_ERROR (HEARTBEAT) : Failed to run %s! %s | %s", v.name, tostring(err), debug.traceback())
+                end
+                heartengine[i] = nil
+            end, delta)
             profileend(v.name)
-            if not suc then
-                warn("AH8_ERROR (HEARTBEAT) : Failed to run " .. v.name .. "! " .. tostring(err))
-            end
+
         end
 
         profileend(hbtname)
@@ -2004,11 +2067,14 @@ do
         for i,v in pairs(whilerender) do
 
             profilebegin(v.name)
-            local suc, err = pcall(v.func, delta)
+            xpcall(v.func, function(err)
+                if (DEBUG_MODE == true) then
+                    Warn("AH8_ERROR (STEPPED) : Failed to run %s! %s | %s", v.name, tostring(err), debug.traceback())
+                end
+                heartengine[i] = nil
+            end, delta)
             profileend(v.name)
-            if not suc then
-                warn("AH8_ERROR (STEPPED) : Failed to run " .. v.name .. "! " .. tostring(err))
-            end
+
         end
 
         profileend(stpname)
@@ -2177,13 +2243,6 @@ local Boxes = Visuals:AddToggleCategory({
 end)
 
 Boxes:AddToggle({
-    Text = "Visible check",
-    State = boxes.showvisible,
-}, function(new)
-    boxes.showvisible = new
-end)
-
-Boxes:AddToggle({
     Text = "Show Team",
     State = boxes.showteam,
 }, function(new)
@@ -2191,10 +2250,10 @@ Boxes:AddToggle({
 end)
 
 Boxes:AddToggle({
-    Text = "3d",
-    State = boxes.thirddimension,
+    Text = "Visible check",
+    State = boxes.showvisible,
 }, function(new)
-    boxes.thirddimension = new
+    boxes.showvisible = new
 end)
 
 Boxes:AddSlider({
@@ -2202,6 +2261,13 @@ Boxes:AddSlider({
     Current = boxes.drawdistance,
 }, {100,100000,100}, function(new)
     boxes.drawdistance = new
+end)
+
+Boxes:AddToggle({
+    Text = "3d",
+    State = boxes.thirddimension,
+}, function(new)
+    boxes.thirddimension = new
 end)
 
 Boxes:AddSlider({
@@ -2220,6 +2286,13 @@ local Esp = Visuals:AddToggleCategory({
 end)
 
 Esp:AddToggle({
+    Text = "Show Team",
+    State = esp.showteam
+}, function(new)
+    esp.showteam = new
+end)
+
+Esp:AddToggle({
     Text = "Visible check",
     State = esp.showvisible,
 }, function(new)
@@ -2227,10 +2300,10 @@ Esp:AddToggle({
 end)
 
 Esp:AddSlider({
-    Text = "Size",
-    Current = esp.size,
-}, {1, 100, 1}, function(new)
-    esp.size = new
+    Text = "Offset",
+    Current = esp.yoffset,
+}, {-50, 50, 0.01}, function(new)
+    esp.yoffset = new
 end)
 
 Esp:AddSlider({
@@ -2241,19 +2314,11 @@ Esp:AddSlider({
 end)
 
 Esp:AddSlider({
-    Text = "Draw Distance",
-    Current = esp.drawdistance
-}, {100,100000,100}, function(new)
-    esp.drawdistance = new
+    Text = "Size",
+    Current = esp.size,
+}, {1, 100, 1}, function(new)
+    esp.size = new
 end)
-
-Esp:AddSlider({
-    Text = "Offset",
-    Current = esp.yoffset,
-}, {-50, 50, 0.01}, function(new)
-    esp.yoffset = new
-end)
-
 
 Esp:AddToggle({
     Text = "Center Text",
@@ -2269,27 +2334,20 @@ Esp:AddToggle({
     esp.outline = new
 end)
 
-Esp:AddToggle({
-    Text = "Show Team",
-    State = esp.showteam
-}, function(new)
-    esp.showteam = new
+Esp:AddSlider({
+    Text = "Draw Distance",
+    Current = esp.drawdistance
+}, {100,100000,100}, function(new)
+    esp.drawdistance = new
 end)
 
 
-
+--
 local Tracers = Visuals:AddToggleCategory({
     Text = "Tracers",
     State = tracers.enabled,
 }, function(new)
     tracers.enabled = new
-end)
-
-Tracers:AddToggle({
-    Text = "Visible check",
-    State = tracers.showvisible,
-}, function(new)
-    tracers.showvisible = new
 end)
 
 Tracers:AddToggle({
@@ -2300,12 +2358,18 @@ Tracers:AddToggle({
 end)
 
 Tracers:AddToggle({
+    Text = "Visible check",
+    State = tracers.showvisible,
+}, function(new)
+    tracers.showvisible = new
+end)
+
+Tracers:AddToggle({
     Text = "From Mouse",
     State = tracers.frommouse,
 }, function(new)
     tracers.frommouse = new
 end)
-
 
 Tracers:AddSlider({
     Text = "Draw Distance",
@@ -2314,11 +2378,19 @@ Tracers:AddSlider({
     tracers.drawdistance = new
 end)
 
+
 local Crosshair = Visuals:AddToggleCategory({
     Text = "Crosshair",
     State = crosshair.enabled,
 }, function(new)
     crosshair.enabled = new
+end)
+
+Crosshair:AddSlider({
+    Text = "Transparency",
+    Current = crosshair.transparency
+}, {0,1,0.01}, function(new)
+    crosshair.transparency = new
 end)
 
 Crosshair:AddSlider({
@@ -2333,13 +2405,6 @@ Crosshair:AddSlider({
     Current = crosshair.thickness
 }, {1,50,1}, function(new)
     crosshair.thickness = new
-end)
-
-Crosshair:AddSlider({
-    Text = "Transparency",
-    Current = crosshair.transparency
-}, {0,1,0.01}, function(new)
-    crosshair.transparency = new
 end)
 
 
