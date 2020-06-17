@@ -10,7 +10,7 @@
 
 -- Extremly bad code starts below here
 
-local DEBUG_MODE = false -- warnings, prints and profiles dont change idiot thanks
+local DEBUG_MODE = true -- warnings, prints and profiles dont change idiot thanks
 
 -- Ok I declare some variables here for micro optimization. I might declare again in the blocks because I am lazy to check here
 local game, workspace = game, workspace
@@ -2100,6 +2100,27 @@ do
 
         settings:Save()
     end
+
+    ah8.visible = hud.Visible
+    function ah8:show()
+        hud:show()
+        ah8.visible = hud.Visible
+    end
+
+    function ah8:hide()
+        hud:hide()
+        ah8.visible = hud.Visible
+    end
+
+    setmetatable(ah8, { -- ok safazi be happy now
+        __newindex = function(self, index, value)
+            if (index == "Keybind") then
+                settings:Set("hud.keybind", value)
+                hud.Keybind = value
+                return
+            end
+        end;
+    })
 
     shared.ah8 = ah8
 
