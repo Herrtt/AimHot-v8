@@ -2442,6 +2442,15 @@ Hud:AddKeybind({
     hud.Keybind = new.Name
 end)
 
+
+Hud:AddButton({
+    Text = "Copy Discord Invite"
+}, function()
+    if (setclipboard) then
+        setclipboard("https://discord.gg/ytnkkBn")
+    end
+end)
+
 Hud:AddLabel({
     Text = "Ugly ui I know shut up"
 })
