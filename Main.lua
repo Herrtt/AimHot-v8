@@ -2140,6 +2140,10 @@ local Aiming = hud:AddTab({
 	Text = "Aiming",
 })
 
+Aiming:AddLabel({
+    Text = "new discord! in the hud tab"
+})
+
 local AimbotToggle = Aiming:AddToggleCategory({
 	Text = "Aimbot",
 	State = aimbot.enabled,
