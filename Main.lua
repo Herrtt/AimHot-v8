@@ -858,10 +858,10 @@ do
 
     -- Do I want to make this decent?
     local aimbot_settings = {}
-    aimbot_settings.ignoreteam = settings:Get("aimbot.ignoreteam", true)
+    aimbot_settings.ignoreteam = settings:Get("aimbot.ignoreteam", false)
     aimbot_settings.sensitivity = settings:Get("aimbot.sensitivity", .5)
     aimbot_settings.locktotarget = settings:Get("aimbot.locktotarget", true)
-    aimbot_settings.checkifalive = settings:Get("aimbot.checkifalive", true)
+    aimbot_settings.checkifalive = settings:Get("aimbot.checkifalive", false)
 
     aimbot_settings.ignorewalls = settings:Get("aimbot.ignorewalls", true)
     aimbot_settings.maxobscuringparts = settings:Get("aimbot.maxobscuringparts", 0)
@@ -1221,12 +1221,12 @@ do
     --/ Tracers
 
     local tracers_settings = {}
-    tracers_settings.enabled = settings:Get("tracers.enabled", false)
+    tracers_settings.enabled = settings:Get("tracers.enabled", true)
     tracers_settings.origin = v2new(camera.ViewportSize.X/2, camera.ViewportSize.Y)
-    tracers_settings.frommouse = settings:Get("tracers.frommouse", false)
+    tracers_settings.frommouse = settings:Get("tracers.frommouse", true)
     tracers_settings.transparency = .6
     tracers_settings.thickness = 1.5
-    tracers_settings.showteam = settings:Get("tracers.showteam", false)
+    tracers_settings.showteam = settings:Get("tracers.showteam", true)
 
     tracers_settings.drawdistance = settings:Get("tracers.drawdistance", 4000)
     tracers_settings.showvisible = settings:Get("tracers.showvisible", true)
@@ -1376,8 +1376,8 @@ do
     --/ ESP
     local esp_settings = {}
 
-    esp_settings.enabled = settings:Get("esp.enabled", false)
-    esp_settings.showteam = settings:Get("esp.showteam", false)
+    esp_settings.enabled = settings:Get("esp.enabled", true)
+    esp_settings.showteam = settings:Get("esp.showteam", true)
     
     esp_settings.teamcolor = Color3.fromRGB(57,255,20) -- 121,255,97, 57,255,20
     esp_settings.enemycolor = Color3.fromRGB(255,7,58) -- 238,38,37, 255,0,13, 255,7,58
@@ -1547,10 +1547,10 @@ do
     --/ Boxes
 
     local boxes_settings = {}
-    boxes_settings.enabled = settings:Get("boxes.enabled", false)
+    boxes_settings.enabled = settings:Get("boxes.enabled", true)
     boxes_settings.transparency = settings:Get("boxes.transparency", .2)
     boxes_settings.thickness = settings:Get("boxes.thickness", 1.5)
-    boxes_settings.showteam = settings:Get("boxes.showteam", false)
+    boxes_settings.showteam = settings:Get("boxes.showteam", true)
 
     boxes_settings.teamcolor = Color3.fromRGB(57,255,20) -- 121,255,97,  57,255,20
     boxes_settings.enemycolor = Color3.fromRGB(255,7,58) -- 238,38,37, 255,0,13, 255,7,58
@@ -2187,6 +2187,10 @@ local AimbotSettings = Aiming:AddCategory({
 	Text = "Settings",
 })
 
+AimbotSettings:AddLabel({
+    Text = "decrease sens if aimbot is wobbly"
+})
+
 AimbotSettings:AddSlider({
     Text = "Sensitivity",
     Current = aimbot.sensitivity
@@ -2454,10 +2458,6 @@ Hud:AddButton({
         setclipboard("https://discord.gg/ytnkkBn")
     end
 end)
-
-Hud:AddLabel({
-    Text = "Ugly ui I know shut up"
-})
 
 Hud:AddButton({
     Text = "Exit"
