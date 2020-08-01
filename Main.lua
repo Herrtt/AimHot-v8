@@ -804,8 +804,8 @@ do
     end
 
     function settings:Save()
-        local savesettings = settings:GetAll()
-        local new = mergetab(savesettings or {}, settings.saved or {})
+        local savesettings = settings:GetAll() or {}
+        local new = mergetab(savesettings, settings.saved)
         local js = serialize(new)
 
         writefile(settings.fileName, js)
@@ -836,7 +836,7 @@ do
         end)
 
         if data then
-            data = mergetab(settings.saved or {}, data or {})
+            data = mergetab(settings.saved, data)
         end
         settings.saved = data
         return data
@@ -996,7 +996,7 @@ do
                 end
 
                 if stop == false and aimbot.checkifalive then
-                    local isalive = utility.isalive(target.Parent)
+                    local isalive = utility.isalive(character, part)
                     if not isalive then
                         stop = true
                     end
