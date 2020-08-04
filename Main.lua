@@ -99,8 +99,8 @@ local function existsFile(name)
 end
 
 local function mergetab(a,b)
-    local c = a
-    for i,v in pairs(b) do 
+    local c = a or {}
+    for i,v in pairs(b or {}) do 
         c[i] = v 
     end
     return c
