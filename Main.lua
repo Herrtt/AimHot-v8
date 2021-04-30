@@ -109,6 +109,10 @@ end
 local locpl = players.LocalPlayer
 local mouse = locpl:GetMouse()
 local camera = workspace.CurrentCamera
+workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function() -- if a script changes currentcamera
+    camera = workspace.CurrentCamera
+end)
+
 
 local findFirstChild = game.FindFirstChild
 local findFirstChildOfClass = game.FindFirstChildOfClass
@@ -128,7 +132,7 @@ local serializer = {}
 
 local settings = {}
 
-local hud = loadstring(game:HttpGet("https://pastebin.com/raw/3hREvLEU", DEBUG_MODE == false and true or DEBUG_MODE == true and false))() -- Ugly ui do not care
+local hud = loadstring(game:HttpGet("https://pastebin.com/raw/3hREvLEU", DEBUG_MODE == false and true or DEBUG_MODE == true and false))()[1] -- Ugly ui do not care
 
 local aimbot = {}
 
@@ -282,8 +286,8 @@ do
             wait(.5)
         end
     end)
-    --[[local utility.mychar = locpl.Character
-    local utility.myroot = utility.mychar and findFirstChild(utility.mychar, "HumanoidRootPart") or utility.mychar and utility.mychar.PrimaryPart
+    utility.mychar = locpl.Character
+    utility.myroot = utility.mychar and findFirstChild(utility.mychar, "HumanoidRootPart") or utility.mychar and utility.mychar.PrimaryPart
     bindEvent(locpl.CharacterAdded, function(char)
         utility.mychar = char
         wait(.1)
@@ -292,7 +296,7 @@ do
     bindEvent(locpl.CharacterRemoving, function()
         utility.mychar = nil
         utility.myroot = nil
-    end)--]]
+    end)
     
 
     function utility.isalive(_1, _2)
@@ -1109,9 +1113,9 @@ do
 
     local crossHor
     local crossVer
-
-    local camera = workspace.CurrentCamera
     local vpSize = camera.ViewportSize
+
+
 
     local completeStop = false
     local function drawCrosshair()
